@@ -1,0 +1,57 @@
+/* src/app/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bk: #000;
+  --g1: #0a0a0a;
+  --g2: #111;
+  --g3: #1a1a1a;
+  --b: rgba(255,255,255,0.06);
+  --b2: rgba(255,255,255,0.1);
+  --b3: rgba(255,255,255,0.22);
+  --t1: #fff;
+  --t2: rgba(255,255,255,0.55);
+  --t3: rgba(255,255,255,0.28);
+  --t4: rgba(255,255,255,0.07);
+  --gr: #30d158;
+  --grd: rgba(48,209,88,0.1);
+  --re: #ff453a;
+  --red: rgba(255,69,58,0.1);
+  --or: #ff9f0a;
+  --ord: rgba(255,159,10,0.1);
+  --pro: #bf5af2;
+  --prod: rgba(191,90,242,0.1);
+  --bl: #0a84ff;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: #000;
+  color: #fff;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-size: 13px;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.live-dot { animation: live-pulse 2s ease-in-out infinite; }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fade-up 0.4s ease forwards; }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.spin { animation: spin 0.8s linear infinite; }

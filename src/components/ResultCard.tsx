@@ -247,7 +247,7 @@ function OverviewGrid({ assets }: { assets: any[] }) {
         const color = scoreColor(asset.certaintyScore)
         return (
           <div key={asset.asset} style={{ background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '14px 16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justify: 'space-between', gap: 6, marginBottom: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6, marginBottom: 8 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <div style={{ width: 24, height: 24, borderRadius: '50%', background: asset.iconBg, color: asset.iconColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700 }}>
                   {asset.icon}

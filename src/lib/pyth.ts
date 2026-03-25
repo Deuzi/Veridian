@@ -39,12 +39,24 @@ export async function fetchPrices(assets: string[]): Promise<Record<string, Live
     .map(id => `ids[]=${id}`)
     .join('&')
 
+  if (!ids) {
+    console.error('❌ No valid Pyth feed IDs for assets:', assets)
+    return {}
+  }
+
+  const url = `${HERMES}/v2/updates/price/latest?${ids}&encoding=hex&parsed=true&ignore_invalid_price_ids=true`
+
   try {
-    const res = await fetch(
-      `${HERMES}/v2/updates/price/latest?${ids}`,
-      { next: { revalidate: 2 } }
-    )
-    if (!res.ok) throw new Error(`Pyth error ${res.status}`)
+    console.log('🔍 Pyth request:', url)   // ← You MUST see this in terminal
+
+    const res = await fetch(url, { next: { revalidate: 2 } })
+
+    if (!res.ok) {
+      const errText = await res.text().catch(() => 'No body')
+      console.error(`Pyth ${res.status}:`, errText)
+      throw new Error(`Pyth error ${res.status}`)
+    }
+
     const data = await res.json()
 
     const result: Record<string, LivePrice> = {}
@@ -52,11 +64,11 @@ export async function fetchPrices(assets: string[]): Promise<Record<string, Live
       const exp = item.price.expo
       const price = Number(item.price.price) * Math.pow(10, exp)
       const conf = Number(item.price.conf) * Math.pow(10, exp)
-      // Match feed ID back to asset key
+
       const matchedAsset = assets.find(a =>
-        PYTH_FEEDS[a]?.replace('0x', '') === item.id ||
-        PYTH_FEEDS[a] === item.id
+        PYTH_FEEDS[a]?.toLowerCase().replace(/^0x/, '') === item.id.toLowerCase().replace(/^0x/, '')
       )
+
       if (matchedAsset) {
         result[matchedAsset] = {
           asset: matchedAsset,
@@ -103,10 +115,7 @@ export function calcCertainty(asset: string, price: number, confidence: number):
   const confPct = price > 0 ? confidence / price : 0
   const deviation = Math.max(0.5, confPct / baseline)
 
-  // Score: high deviation = low score
   const score = Math.min(100, Math.max(0, Math.round(100 - (deviation - 1) * 38)))
-
-  // Publisher consensus inversely proportional to deviation
   const publisherConsensus = Math.round(
     TOTAL_PUBLISHERS * Math.min(0.97, Math.max(0.60, 1 - (deviation - 1) * 0.14))
   )

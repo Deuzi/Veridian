@@ -16,6 +16,7 @@ export interface OracleVerdict {
   shareText: string
   relatedAssets: string[]
   notMarketReason?: string
+  newsInsight?: string
 }
 
 // Detect assets from query
@@ -64,35 +65,33 @@ export async function generateVerdict(
 
   const system = `You are Veridian, a financial oracle intelligence powered by Pyth Network.
 
-You answer ANY financial market question — crypto prices, stock prices, forex rates, commodities, DeFi, market trends, Pyth Network, oracle technology, token prices, anything finance-related.
+  You answer ANY financial market question using live Pyth oracle data.
 
-You have access to LIVE Pyth oracle data updated every 400ms from 94 independent publishers.
+  LIVE PYTH DATA RIGHT NOW:
+  ${assetSummary}
 
-LIVE DATA RIGHT NOW:
-${assetSummary}
+  ENTROPY BASELINE:
+  - Market mood: ${entropy.moodScore}/100
+  - Global deviation: ${entropy.globalDeviation}σ  
+  - Macro alert: ${entropy.macroAlertActive}
 
-ENTROPY BASELINE:
-- Market mood: ${entropy.moodScore}/100
-- Global deviation: ${entropy.globalDeviation}σ  
-- Macro alert: ${entropy.macroAlertActive}
-- Seed: ${entropy.seed}
+  RULES:
+  - Always use the live Pyth numbers (price, certainty, publishers, EMA, momentum)
+  - Talk about oracle quality: how trustworthy the data is right now (EXECUTE/WAIT/ABORT)
+  - Mention if price is above or below EMA and the momentum
+  - Never give direct buy/sell advice. Focus on data quality and market conditions.
+  - For every response, include a short "Market Pulse" insight.
+  - Keep verdict to 3-4 dense sentences with <strong> tags for key numbers.
 
-RULES:
-- Answer any financial question using the live data you have
-- If asked about an asset not in your live data, explain what Pyth oracle data means for it generally
-- Never give direct buy/sell advice — talk about data quality and oracle conditions
-- Always mention real numbers from your live data
-- Keep verdict to 3-4 sentences, dense with insight
-- If the query is completely unrelated to finance/markets, set isMarketQuery to false
-
-Return ONLY this JSON:
-{
-  "isMarketQuery": true,
-  "verdict": "3-4 sentences with <strong> tags for key numbers and insights",
-  "verdictTag": "ORACLE VERDICT or MARKET OVERVIEW or PRO FEED or COMPARISON or PYTH INSIGHT",
-  "shareText": "Under 280 chars, mention @PythNetwork",
-  "relatedAssets": ["ASSET_KEY1", "ASSET_KEY2", "ASSET_KEY3"]
-}`
+  Return ONLY this JSON:
+  {
+    "isMarketQuery": true,
+    "verdict": "3-4 sentences with strong insights",
+    "verdictTag": "ORACLE VERDICT or MARKET OVERVIEW or PRO FEED or COMPARISON or PYTH INSIGHT",
+    "shareText": "Under 280 chars, mention @PythNetwork",
+    "relatedAssets": ["ASSET1", "ASSET2"],
+    "newsInsight": "One short powerful sentence about current market pulse"
+  }`;
 
   const user = `Query: "${query}"
 Type: ${type}
@@ -148,13 +147,14 @@ Time: ${new Date().toUTCString()}`
     }
 
     return {
-      type,
-      isMarketQuery: true,
-      verdict: parsed.verdict ?? '',
-      verdictTag: parsed.verdictTag ?? 'ORACLE VERDICT',
-      shareText: parsed.shareText ?? '',
-      relatedAssets: Array.isArray(parsed.relatedAssets) ? parsed.relatedAssets : [],
-    }
+    type,
+    isMarketQuery: true,
+    verdict: parsed.verdict ?? '',
+    verdictTag: parsed.verdictTag ?? 'ORACLE VERDICT',
+    shareText: parsed.shareText ?? '',
+    relatedAssets: Array.isArray(parsed.relatedAssets) ? parsed.relatedAssets : [],
+    newsInsight: parsed.newsInsight ?? 'Live Pyth oracle conditions updated.',
+  }
 
   } catch (err) {
     console.error('Groq error:', err)
@@ -201,7 +201,7 @@ function fallbackVerdict(
     .filter(k => !assets.find(x => x.asset === k))
     .slice(0, 3)
 
-  return { type, isMarketQuery: true, verdict, verdictTag, shareText, relatedAssets: related }
+  return { type, isMarketQuery: true, verdict, verdictTag, shareText, relatedAssets: related , newsInsight: "Live Pyth oracle conditions updated."}
 }
 
 export function notMarketResponse(query: string): OracleVerdict {

@@ -23,6 +23,15 @@ function ratingBg(rating: string) {
   if (rating === 'WAIT') return 'rgba(255,159,10,0.1)'
   return 'rgba(255,69,58,0.1)'
 }
+function fmtEMAPrice(price: number, assetKey: string) {
+  // Use the same logic as fmtPrice but fallback safely to BTC decimals if unknown
+  const meta = ASSET_META[assetKey] || ASSET_META['BTC'];
+  const d = meta?.decimals ?? 2;
+
+  if (price >= 1000) return '$' + price.toLocaleString('en', { maximumFractionDigits: 0 });
+  if (price >= 1) return '$' + price.toFixed(d > 2 ? 2 : d);
+  return '$' + price.toFixed(d);
+}
 
 export default function ResultCard({ result, originalQuery, onBack, onRelatedSearch }: Props) {
   const [searchVal, setSearchVal] = useState(originalQuery)
@@ -144,6 +153,13 @@ export default function ResultCard({ result, originalQuery, onBack, onRelatedSea
 
 function MainAssetCard({ asset }: { asset: any }) {
   const color = scoreColor(asset.certaintyScore)
+  console.log("Asset data received:", {
+    asset: asset.asset,
+    price: asset.priceFormatted,
+    emaPrice: asset.emaPrice,
+    momentum: asset.momentum
+  });
+
   return (
     <div style={{ background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, overflow: 'hidden' }}>
       <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'grid', gridTemplateColumns: '1fr auto', gap: 20, alignItems: 'start' }}>
@@ -162,15 +178,43 @@ function MainAssetCard({ asset }: { asset: any }) {
               </div>
             </div>
           </div>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', fontWeight: 300, lineHeight: 1.6 }}>
+
+          {/* EMA + Momentum - FIXED */}
+          {/* EMA + Momentum */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8, fontSize: 13, color: 'rgba(255,255,255,0.7)' }}>
+            <div>
+              Spot: <span style={{ fontWeight: 600, color }}>{asset.priceFormatted}</span>
+            </div>
+            <div style={{ color: 'rgba(255,255,255,0.4)' }}>•</div>
+            <div>
+              EMA: <span style={{ fontWeight: 500 }}>
+                {fmtEMAPrice(asset.emaPrice || 0, asset.asset || 'BTC')}
+              </span>
+            </div>
+            
+            <div style={{ 
+              padding: '2px 8px', 
+              borderRadius: 6, 
+              fontSize: 12, 
+              fontWeight: 600,
+              backgroundColor: asset.momentumColor + '20',
+              color: asset.momentumColor,
+              marginLeft: 4
+            }}>
+              {asset.momentum}
+            </div>
+          </div>
+
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', fontWeight: 300, lineHeight: 1.6, marginTop: 12 }}>
             {asset.certaintyScore >= 70
-              ? `Publisher consensus is strong at ${asset.publisherConsensus}/94. Confidence interval tight at ${asset.confidenceFormatted}. Oracle data is clean and reliable right now.`
+              ? `Strong publisher consensus at ${asset.publisherConsensus}/94. Tight confidence ${asset.confidenceFormatted}.`
               : asset.certaintyScore >= 50
-              ? `Publisher spread is elevated. ${94 - asset.publisherConsensus} publishers showing mild disagreement. Confidence at ${asset.confidenceFormatted} — ${asset.deviation}σ above baseline. Exercise caution.`
-              : `Publisher network is fragmenting. ${94 - asset.publisherConsensus} publishers in significant disagreement. Confidence at ${asset.confidenceFormatted} — ${asset.deviation}σ above baseline. Do not act on this price.`
+              ? `Moderate divergence detected. ${asset.confidenceFormatted} confidence — ${asset.deviation}σ from baseline.`
+              : `Significant publisher disagreement. Exercise caution with this feed.`
             }
           </div>
         </div>
+
         <div style={{ textAlign: 'right', flexShrink: 0 }}>
           <div style={{ fontSize: 'clamp(26px, 4vw, 38px)', fontWeight: 700, letterSpacing: '-0.04em', lineHeight: 1, color: color, fontVariantNumeric: 'tabular-nums', marginBottom: 6 }}>
             {asset.priceFormatted}
@@ -180,15 +224,19 @@ function MainAssetCard({ asset }: { asset: any }) {
           </div>
         </div>
       </div>
+
+      {/* Bottom stats grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, background: 'rgba(255,255,255,0.06)' }}>
         {[
           { label: 'CONFIDENCE', val: asset.confidenceFormatted, color: color },
           { label: 'PUBLISHERS', val: `${asset.publisherConsensus}/94`, color: '#fff' },
-          { label: 'DEVIATION', val: `${asset.deviation}σ`, color: asset.deviation >= 2.5 ? '#ff453a' : asset.deviation >= 1.5 ? '#ff9f0a' : '#30d158' },
-          { label: 'CONDITIONS', val: asset.rating, color: asset.ratingColor },
+          { label: 'DEVIATION',  val: `${asset.deviation}σ`, color: asset.deviation >= 2.5 ? '#ff453a' : asset.deviation >= 1.5 ? '#ff9f0a' : '#30d158' },
+          { label: 'MOMENTUM',   val: asset.momentum, color: asset.momentumColor },
         ].map(m => (
           <div key={m.label} style={{ background: '#0a0a0a', padding: '13px 16px' }}>
-            <div style={{ fontSize: 15, fontWeight: 600, color: m.color, marginBottom: 3, fontVariantNumeric: 'tabular-nums' }}>{m.val}</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: m.color, marginBottom: 3, fontVariantNumeric: 'tabular-nums' }}>
+              {m.val}
+            </div>
             <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.08em' }}>{m.label}</div>
           </div>
         ))}

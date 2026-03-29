@@ -28,7 +28,7 @@ const QUICK_PICKS = [
 ]
 
 // Live ticker assets shown on hero
-const TICKER_ASSETS = ['BTC', 'ETH', 'SOL', 'AVAX']
+const TICKER_ASSETS = ['BTC', 'ETH', 'SOL', 'PYTH', 'XAU_USD']
 
 export default function Home() {
   const [query, setQuery] = useState('')

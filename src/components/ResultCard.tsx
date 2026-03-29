@@ -153,25 +153,46 @@ export default function ResultCard({ result, originalQuery, onBack, onRelatedSea
 
 function MainAssetCard({ asset }: { asset: any }) {
   const color = scoreColor(asset.certaintyScore)
-  console.log("Asset data received:", {
-    asset: asset.asset,
-    price: asset.priceFormatted,
-    emaPrice: asset.emaPrice,
-    momentum: asset.momentum
-  });
 
   return (
     <div style={{ background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, overflow: 'hidden' }}>
       <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'grid', gridTemplateColumns: '1fr auto', gap: 20, alignItems: 'start' }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-            <div style={{ width: 36, height: 36, borderRadius: '50%', background: asset.iconBg, color: asset.iconColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, flexShrink: 0 }}>
-              {asset.icon}
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            {/* Real Logo Image */}
+            <img 
+              src={asset.icon} 
+              alt={asset.name}
+              style={{ 
+                width: 42, 
+                height: 42, 
+                borderRadius: '50%', 
+                objectFit: 'contain',
+                background: asset.iconBg,
+                padding: '4px'
+              }}
+              onError={(e) => {
+                // Fallback if image fails to load
+                (e.target as HTMLImageElement).src = 'https://cryptologos.cc/logos/question-mark-logo.png';
+              }}
+            />
             <div>
               <div style={{ fontSize: 17, fontWeight: 600, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 7 }}>
                 {asset.name}
-                {asset.isPro && <span style={{ fontSize: 9, padding: '2px 6px', borderRadius: 3, background: 'rgba(191,90,242,0.1)', color: '#bf5af2', border: '1px solid rgba(191,90,242,0.2)', letterSpacing: '0.06em', fontWeight: 600 }}>PRO</span>}
+                {asset.isPro && (
+                  <span style={{ 
+                    fontSize: 9, 
+                    padding: '2px 6px', 
+                    borderRadius: 3, 
+                    background: 'rgba(191,90,242,0.1)', 
+                    color: '#bf5af2', 
+                    border: '1px solid rgba(191,90,242,0.2)', 
+                    letterSpacing: '0.06em', 
+                    fontWeight: 600 
+                  }}>
+                    PRO
+                  </span>
+                )}
               </div>
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.28)', marginTop: 1, letterSpacing: '0.02em' }}>
                 {asset.symbol} · {asset.publisherConsensus}/94 publishers
@@ -179,7 +200,6 @@ function MainAssetCard({ asset }: { asset: any }) {
             </div>
           </div>
 
-          {/* EMA + Momentum - FIXED */}
           {/* EMA + Momentum */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8, fontSize: 13, color: 'rgba(255,255,255,0.7)' }}>
             <div>
@@ -244,7 +264,6 @@ function MainAssetCard({ asset }: { asset: any }) {
     </div>
   )
 }
-
 function AssetPanel({ asset, isWinner }: { asset: any; isWinner: boolean }) {
   const color = scoreColor(asset.certaintyScore)
   return (

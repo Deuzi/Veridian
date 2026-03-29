@@ -28,7 +28,7 @@ const QUICK_PICKS = [
 ]
 
 // Live ticker assets shown on hero
-const TICKER_ASSETS = ['BTC', 'ETH', 'SOL', 'PYTH', 'XAU_USD']
+const TICKER_ASSETS = ['BTC', 'ETH', 'SOL', 'PYTH', 'XAU_USD'];
 
 export default function Home() {
   const [query, setQuery] = useState('')
@@ -174,30 +174,33 @@ export default function Home() {
 
           {/* Live ticker */}
           {Object.keys(tickerPrices).length > 0 && (
-            <div style={{ display: 'flex', gap: 10, marginBottom: 28, flexWrap: 'wrap', justifyContent: 'center' }}>
-              {TICKER_ASSETS.map(asset => {
-                const p = tickerPrices[asset]
-                if (!p) return null
-                return (
-                  <div
-                    key={asset}
-                    onClick={() => handleQuickPick(asset)}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 8,
-                      padding: '7px 14px', borderRadius: 10,
-                      background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.06)',
-                      cursor: 'pointer', transition: 'border-color 0.15s',
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)'}
-                    onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'}
-                  >
-                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 500 }}>{asset}</span>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: p.color, fontVariantNumeric: 'tabular-nums' }}>{p.price}</span>
-                    <div style={{ width: 4, height: 4, borderRadius: '50%', background: p.color }} className="live-dot" />
-                  </div>
-                )
-              })}
-            </div>
+          <div style={{ display: 'flex', gap: 10, marginBottom: 28, flexWrap: 'wrap', justifyContent: 'center' }}>
+          {TICKER_ASSETS.map(asset => {
+            const p = tickerPrices[asset];
+            if (!p) return null;
+            
+            return (
+              <div
+                key={asset}
+                onClick={() => handleQuickPick(asset)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  padding: '7px 14px', borderRadius: 10,
+                  background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.06)',
+                  cursor: 'pointer', transition: 'border-color 0.15s',
+                }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)'}
+                onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'}
+              >
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 500 }}>{asset}</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: p.color, fontVariantNumeric: 'tabular-nums' }}>
+                  {p.price}
+                </span>
+                <div style={{ width: 4, height: 4, borderRadius: '50%', background: p.color }} className="live-dot" />
+              </div>
+            );
+          })}
+          </div>
           )}
 
           {/* Search */}

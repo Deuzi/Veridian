@@ -159,111 +159,99 @@ function MainAssetCard({ asset }: { asset: any }) {
       <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'grid', gridTemplateColumns: '1fr auto', gap: 20, alignItems: 'start' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-            {/* Real Logo Image */}
-            <img 
-              src={asset.icon} 
-              alt={asset.name}
-              style={{ 
-                width: 42, 
-                height: 42, 
-                borderRadius: '50%', 
-                objectFit: 'contain',
-                background: asset.iconBg,
-                padding: '4px'
-              }}
-              onError={(e) => {
-                // Fallback if image fails to load
-                (e.target as HTMLImageElement).src = 'https://cryptologos.cc/logos/question-mark-logo.png';
-              }}
-            />
+            {/* Real Logo */}
+            <div style={{ width: 42, height: 42, borderRadius: '50%', overflow: 'hidden', background: asset.iconBg || '#333', padding: '3px' }}>
+              <img 
+                src={asset.icon} 
+                alt={asset.name}
+                style={{ 
+                  width: '100%', 
+                  height: '100%', 
+                  objectFit: 'contain' 
+                }}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://cryptologos.cc/logos/question-mark-logo.png';
+                }}
+              />
+            </div>
+
             <div>
-              <div style={{ fontSize: 17, fontWeight: 600, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 7 }}>
+              <div style={{ fontSize: 17, fontWeight: 600, letterSpacing: '-0.02em' }}>
                 {asset.name}
-                {asset.isPro && (
-                  <span style={{ 
-                    fontSize: 9, 
-                    padding: '2px 6px', 
-                    borderRadius: 3, 
-                    background: 'rgba(191,90,242,0.1)', 
-                    color: '#bf5af2', 
-                    border: '1px solid rgba(191,90,242,0.2)', 
-                    letterSpacing: '0.06em', 
-                    fontWeight: 600 
-                  }}>
-                    PRO
-                  </span>
-                )}
+                {asset.isPro && <span style={{ fontSize: 9, padding: '2px 6px', borderRadius: 3, background: 'rgba(191,90,242,0.1)', color: '#bf5af2', border: '1px solid rgba(191,90,242,0.2)', marginLeft: 8 }}>PRO</span>}
               </div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.28)', marginTop: 1, letterSpacing: '0.02em' }}>
-                {asset.symbol} · {asset.publisherConsensus}/94 publishers
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.28)', marginTop: 2 }}>
+                {asset.symbol} · {asset.publisherConsensus || 0}/94 publishers
               </div>
             </div>
           </div>
 
           {/* EMA + Momentum */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8, fontSize: 13, color: 'rgba(255,255,255,0.7)' }}>
-            <div>
-              Spot: <span style={{ fontWeight: 600, color }}>{asset.priceFormatted}</span>
-            </div>
+            <div>Spot: <span style={{ fontWeight: 600, color }}>{asset.priceFormatted}</span></div>
             <div style={{ color: 'rgba(255,255,255,0.4)' }}>•</div>
             <div>
               EMA: <span style={{ fontWeight: 500 }}>
-                {fmtEMAPrice(asset.emaPrice || 0, asset.asset || 'BTC')}
+                ${Number(asset.emaPrice || 0).toLocaleString()}
               </span>
             </div>
-            
             <div style={{ 
               padding: '2px 8px', 
               borderRadius: 6, 
               fontSize: 12, 
               fontWeight: 600,
-              backgroundColor: asset.momentumColor + '20',
-              color: asset.momentumColor,
-              marginLeft: 4
+              backgroundColor: (asset.momentumColor || '#ff9f0a') + '20',
+              color: asset.momentumColor || '#ff9f0a'
             }}>
-              {asset.momentum}
+              {asset.momentum || 'NEUTRAL'}
             </div>
           </div>
 
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', fontWeight: 300, lineHeight: 1.6, marginTop: 12 }}>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', marginTop: 12, lineHeight: 1.6 }}>
             {asset.certaintyScore >= 70
-              ? `Strong publisher consensus at ${asset.publisherConsensus}/94. Tight confidence ${asset.confidenceFormatted}.`
-              : asset.certaintyScore >= 50
-              ? `Moderate divergence detected. ${asset.confidenceFormatted} confidence — ${asset.deviation}σ from baseline.`
-              : `Significant publisher disagreement. Exercise caution with this feed.`
+              ? `Strong publisher consensus. Tight confidence ${asset.confidenceFormatted}.`
+              : `Moderate divergence. ${asset.confidenceFormatted} confidence — ${asset.deviation}σ from baseline.`
             }
           </div>
         </div>
 
-        <div style={{ textAlign: 'right', flexShrink: 0 }}>
-          <div style={{ fontSize: 'clamp(26px, 4vw, 38px)', fontWeight: 700, letterSpacing: '-0.04em', lineHeight: 1, color: color, fontVariantNumeric: 'tabular-nums', marginBottom: 6 }}>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ fontSize: 'clamp(26px, 4vw, 38px)', fontWeight: 700, color: color }}>
             {asset.priceFormatted}
           </div>
-          <div style={{ fontSize: 11, padding: '3px 9px', borderRadius: 5, display: 'inline-block', background: ratingBg(asset.rating), color: asset.ratingColor, fontWeight: 600, letterSpacing: '0.04em' }}>
+          <div style={{ 
+            display: 'inline-block', 
+            marginTop: 6,
+            padding: '4px 10px', 
+            borderRadius: 5, 
+            background: ratingBg(asset.rating), 
+            color: asset.ratingColor, 
+            fontSize: 11, 
+            fontWeight: 600 
+          }}>
             {asset.rating}
           </div>
         </div>
       </div>
 
-      {/* Bottom stats grid */}
+      {/* Stats Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, background: 'rgba(255,255,255,0.06)' }}>
         {[
-          { label: 'CONFIDENCE', val: asset.confidenceFormatted, color: color },
-          { label: 'PUBLISHERS', val: `${asset.publisherConsensus}/94`, color: '#fff' },
-          { label: 'DEVIATION',  val: `${asset.deviation}σ`, color: asset.deviation >= 2.5 ? '#ff453a' : asset.deviation >= 1.5 ? '#ff9f0a' : '#30d158' },
-          { label: 'MOMENTUM',   val: asset.momentum, color: asset.momentumColor },
+          { label: 'CONFIDENCE', val: asset.confidenceFormatted || '—', color },
+          { label: 'PUBLISHERS', val: `${asset.publisherConsensus || 0}/94`, color: '#fff' },
+          { label: 'DEVIATION',  val: `${asset.deviation || 0}σ`, color: '#ff9f0a' },
+          { label: 'MOMENTUM',   val: asset.momentum || 'NEUTRAL', color: asset.momentumColor || '#ff9f0a' },
         ].map(m => (
-          <div key={m.label} style={{ background: '#0a0a0a', padding: '13px 16px' }}>
-            <div style={{ fontSize: 15, fontWeight: 600, color: m.color, marginBottom: 3, fontVariantNumeric: 'tabular-nums' }}>
-              {m.val}
-            </div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.08em' }}>{m.label}</div>
+          <div key={m.label} style={{ background: '#0a0a0a', padding: '13px 12px' }}>
+            <div style={{ fontSize: 15, fontWeight: 600, color: m.color }}>{m.val}</div>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{m.label}</div>
           </div>
         ))}
       </div>
     </div>
   )
 }
+
 function AssetPanel({ asset, isWinner }: { asset: any; isWinner: boolean }) {
   const color = scoreColor(asset.certaintyScore)
   return (
@@ -400,40 +388,102 @@ function MoodPanel({ entropy, seq }: { entropy: any; seq: number }) {
 }
 
 function SharePanel({ response, copied, onCopy }: { response: any; copied: boolean; onCopy: () => void }) {
-  if (!response?.shareText) return null
+  if (!response?.shareText) return null;
+
+  const handleShareToX = () => {
+    if (!response.shareText) return;
+
+    const tweetText = encodeURIComponent(response.shareText);
+    const xUrl = `https://x.com/intent/tweet?text=${tweetText}`;
+
+    // Open X in a new tab
+    window.open(xUrl, '_blank', 'noopener,noreferrer');
+  };
+
   return (
-    <div style={{ background: '#0a0a0a', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+    <div style={{ 
+      background: '#0a0a0a', 
+      border: '1px solid rgba(255,255,255,0.06)', 
+      borderRadius: 14, 
+      padding: '16px 20px', 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'space-between', 
+      gap: 16 
+    }}>
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.1em', fontWeight: 500, marginBottom: 5 }}>SHARE TO X</div>
+        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.1em', fontWeight: 500, marginBottom: 5 }}>
+          SHARE TO X
+        </div>
         <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', fontWeight: 300, lineHeight: 1.55, letterSpacing: '-0.01em' }}>
           {response.shareText}
         </div>
       </div>
-      <button
-        onClick={onCopy}
-        style={{
-          display: 'flex', alignItems: 'center', gap: 7,
-          padding: '9px 18px', borderRadius: 9,
-          background: copied ? 'rgba(48,209,88,0.15)' : '#fff',
-          color: copied ? '#30d158' : '#000',
-          border: copied ? '1px solid rgba(48,209,88,0.3)' : 'none',
-          fontSize: 12, fontWeight: 600, cursor: 'pointer',
-          fontFamily: 'inherit', whiteSpace: 'nowrap', flexShrink: 0,
-          transition: 'all 0.2s',
-        }}
-      >
-        {copied ? (
-          <>
-            <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="#30d158" strokeWidth="2" strokeLinecap="round"><path d="M2 7l4 4 6-7" /></svg>
-            Copied!
-          </>
-        ) : (
-          <>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.629L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
-            Share
-          </>
-        )}
-      </button>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
+        {/* Copy Button */}
+        <button
+          onClick={onCopy}
+          style={{
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 7,
+            padding: '9px 18px', 
+            borderRadius: 9,
+            background: copied ? 'rgba(48,209,88,0.15)' : '#fff',
+            color: copied ? '#30d158' : '#000',
+            border: copied ? '1px solid rgba(48,209,88,0.3)' : 'none',
+            fontSize: 12, 
+            fontWeight: 600, 
+            cursor: 'pointer',
+            fontFamily: 'inherit', 
+            whiteSpace: 'nowrap',
+            transition: 'all 0.2s',
+          }}
+        >
+          {copied ? (
+            <>
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="#30d158" strokeWidth="2" strokeLinecap="round">
+                <path d="M2 7l4 4 6-7" />
+              </svg>
+              Copied!
+            </>
+          ) : (
+            <>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.629L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+              Copy
+            </>
+          )}
+        </button>
+
+        {/* Share to X Button */}
+        <button
+          onClick={handleShareToX}
+          style={{
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 7,
+            padding: '9px 18px', 
+            borderRadius: 9,
+            background: '#1DA1F2',
+            color: '#fff',
+            border: 'none',
+            fontSize: 12, 
+            fontWeight: 600, 
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+            whiteSpace: 'nowrap',
+            transition: 'all 0.2s',
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.629L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+          </svg>
+          Share on X
+        </button>
+      </div>
     </div>
   )
 }
